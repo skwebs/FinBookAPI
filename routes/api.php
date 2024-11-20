@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\TransactionController;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -78,4 +80,33 @@ Route::group(["middleware" => ["auth:sanctum"]], function () {
         $request->user()->currentAccessToken()->delete();
         return response()->noContent();
     });
+
+    // Customer Routes
+    // Additional routes for soft delete functionality
+    Route::patch('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
+    Route::delete('/customers/{id}/force', [CustomerController::class, 'forceDelete'])->name('customers.forceDelete');
+    // Customer Routes
+    Route::apiResource('customers', CustomerController::class);
+
+    // Transaction Routes
+    // Additional routes for soft delete functionality
+    Route::patch('/transactions/{id}/restore', [TransactionController::class, 'restore'])->name('transactions.restore');
+    Route::delete('/transactions/{id}/force', [TransactionController::class, 'forceDelete'])->name('transactions.forceDelete');
+    // Transaction Routes
+    Route::apiResource('transactions', TransactionController::class);
+
+
+    // perform operation with customer_id
+    // Get all transactions for a specific customer
+    Route::get('customer/{customerId}/transactions', [TransactionController::class, 'getTransactionsByCustomer']);
+
+    // Store a new transaction for a specific customer
+    Route::post('customer/{customerId}/transaction', [TransactionController::class, 'store']);
+
+    // Update an existing transaction
+    Route::put('transaction/{transactionId}', [TransactionController::class, 'update']);
+
+    // Delete a transaction
+    Route::delete('transaction/{transactionId}', [TransactionController::class, 'destroy']);
+
 });
